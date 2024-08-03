@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Leilão</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #102246;
+            padding: 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar-title {
+            margin-left: 20px;
+        }
+        .navbar-buttons {
+            margin-right: 20px;
+        }
+        .navbar-buttons button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            background-color: #102246;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .navbar-buttons button:hover {
+            background-color: #132a57;            
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .lot {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            width: 30%;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 60px; /* Adiciona espaço para o botão fixo na parte inferior */
+        }
+        .lot img {
+            width: 100%;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .lot .lot-header {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .lot .lot-info {
+            padding: 10px;
+            text-align: center;
+        }
+        .lot .lot-info h3, .lot .lot-info h4 {
+            margin: 10px 0;
+        }
+        .lot .lot-info p {
+            margin: 5px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+        }
+        .lot button {
+            position: absolute;
+            bottom: 10px; /* Ajusta a distância da parte inferior do slot */
+            left: 0;
+            right: 0;
+            width: calc(100% - 20px); /* Ajuste para largura consistente com padding */
+            margin: 0 auto; /* Centraliza horizontalmente */
+            padding: 15px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        .lot button:hover {
+            background-color: #218838;
+        }
+        .favorite {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .favorite.active {
+            color: rgb(216, 0, 0);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-title">Calculadora de Leilão</div>
+        <div class="navbar-buttons">
+            <button class="active" onclick="filterLots('all')">Todos os Lotes</button>
+            <button onclick="filterLots('favorites')">Lotes Favoritos</button>
+        </div>
+    </div>
+    <div class="container" id="lotsContainer"></div>
+    <script>
+        const lots = 
+        [
+    {
+        "lote": "001",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "CHEVROLET CAMARO 2SS - 2012/2012",
+        "preco": "94.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/001/LT001_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "002",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FIAT/TORO ENDURANCE AT - 2018/2019",
+        "preco": "45.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/002/LT002_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "003",
+        "fipe": "10250",
+        "condicao": "Sinistro",
+        "nome": "RENAULT/KWID ZEN 10MT - 2019/2019",
+        "preco": "16.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/003/LT003_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "004",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "CHEVROLET/CRUZE LT NB - 2013/2013",
+        "preco": "21.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/004/LT004_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "005",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "SANTANA COMFORTLINE - 2006/2006",
+        "preco": "8.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/005/LT005_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "006",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "PEUGEOT 207HB XR - 2010/2011",
+        "preco": "8.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/006/LT006_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "007",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "CHEVROLET/MONTANA LS - 2012/2013",
+        "preco": "14.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/007/LT007_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "008",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "VW/SAVEIRO CS TL MB - 2015/2016",
+        "preco": "23.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/008/LT008_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "009",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "GM/ASTRA GL - 2002/2002",
+        "preco": "4.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/009/LT009_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "010",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "RENAULT/MEGANESD EXPR 16 - 2006/2007",
+        "preco": "4.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/010/LT010_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "011",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "PEUGEOT/207HB XR S - 2009/2010",
+        "preco": "6.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/011/LT011_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "012",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FIAT SIENA EL 1.0 FLEX - 2014/2015",
+        "preco": "16.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/012/LT012_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "013",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "GM/MERIVA JOY - 2008/2008",
+        "preco": "7.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/013/LT013_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "014",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "KIA SOUL EX 1.6 FF MT - 2011/2012",
+        "preco": "8.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/014/LT014_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "015",
+        "fipe": "10250",
+        "condicao": "Remarcado",
+        "nome": "GM/CORSA HATCH MAXX - 2008/2009",
+        "preco": "8.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/015/LT015_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "016",
+        "fipe": "10250",
+        "condicao": "Remarcado",
+        "nome": "FORD/FIESTA FLEX - 2012/2013",
+        "preco": "6.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/016/LT016_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "017",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "GM/CELTA 2P SPIRIT - 2010/2011",
+        "preco": "7.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/017/LT017_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "018",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FORD/FIESTA SEDAN1.6FLEX - 2010/2011",
+        "preco": "11.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/018/LT018_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "019",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FIAT/SIENA FIRE FLEX - 2007/2008",
+        "preco": "7.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/019/LT019_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "020",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "CITROEN/C3 EXCL 14 FLEX - 2007/2008",
+        "preco": "6.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/020/LT020_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "021",
+        "fipe": "10250",
+        "condicao": "Sinistro",
+        "nome": "VW/GOLF 2.0 - 2002/2003",
+        "preco": "7.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/021/LT021_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "022",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FIAT/UNO VIVACE 1.0 - 2014/2014",
+        "preco": "11.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/022/LT022_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "023",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "GM/CELTA 4P LIFE - 2006/2007",
+        "preco": "5.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/023/LT023_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "024",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FORD FOCUS 2L FC FLEX - 2013/2013",
+        "preco": "15.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/024/LT024_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "025",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "YAMAHA/YS150 FAZER SED - 2020/2020",
+        "preco": "6.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/025/LT025_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "026",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "HONDA/BIZ 125 - 2023/2023",
+        "preco": "8.600,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/026/LT026_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "027",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "HONDA/CG 160 TITAN - 2018/2019",
+        "preco": "6.600,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/027/LT027_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "028",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "HONDA/BIZ 100 ES - 2015/2015",
+        "preco": "4.200,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/028/LT028_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "029",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "HONDA/CG 160 FAN - 2022/2022",
+        "preco": "8.200,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/029/LT029_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "032",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "VW/NOVO GOL 1.0 - 2013/2014",
+        "preco": "8.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/032/LT032_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "031",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "HONDA/CITY LX FLEX - 2012/2013",
+        "preco": "22.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/031/LT031_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "032",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "VW/POLO SEDAN 1.6 COMFOR - 2006/2006",
+        "preco": "8.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/032/LT032_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "033",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "CHEVROLET/ONIX 10MT JOYE - 2019/2019",
+        "preco": "18.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/033/LT033_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "034",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FIAT/SIENA ATTRACTIV 1.4 - 2013/2014",
+        "preco": "11.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/034/LT034_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "035",
+        "fipe": "10250",
+        "condicao": "Remarcado",
+        "nome": "GM/ASTRA HB 2P ADVANTAGE - 2005/2006",
+        "preco": "7.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/035/LT035_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "036",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "FORD/KA FLEX - 2012/2013",
+        "preco": "10.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/036/LT036_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "037",
+        "fipe": "10250",
+        "condicao": "Sinistro / Rem",
+        "nome": "FIAT/PALIO FIRE FLEX - 2008/2008",
+        "preco": "6.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/037/LT037_01.JPG",
+        "favorito": false
+    },
+    {
+        "lote": "038",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "VW/NOVO GOL 1.0 - 2012/2013",
+        "preco": "9.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/038/LT038_01.jpg",
+        "favorito": false
+    },
+    {
+        "lote": "039",
+        "fipe": "10250",
+        "condicao": "Financeira",
+        "nome": "CHEVROLET/ONIX 1.0MT LT - 2018/2018",
+        "preco": "27.000,00",
+        "precoMedio": "50,00",
+        "img": "https://cdn2.freitasleiloeiro.com.br/LEILOES/6676/FOTOS/039/LT039_01.JPG",
+        "favorito": false
+    },
+];
+
+
+        function renderLots(filter = 'all') {
+            const container = document.getElementById('lotsContainer');
+            container.innerHTML = '';
+            const filteredLots = filter === 'favorites' ? lots.filter(lot => lot.favorito) : lots;
+
+            filteredLots.forEach(lot => {
+                const lotElement = document.createElement('div');
+                lotElement.className = 'lot';
+                lotElement.innerHTML = `
+                    <span class="favorite ${lot.favorito ? 'active' : ''}" onclick="toggleFavorite('${lot.lote}')">&#10084;</span>
+                    <img src="${lot.img}" alt="${lot.nome}">
+                    <div class="lot-header">Lote ${lot.lote}</div>
+                    <div class="lot-info">
+                        <h3>${lot.nome}</h3>
+                        <p>R$ ${lot.preco}</p>
+                        <button onclick="calcularLote('${lot.lote}')">Calcular</button>
+                    </div>
+                `;
+                container.appendChild(lotElement);
+            });
+        }
+
+        function toggleFavorite(lote) {
+            const lot = lots.find(l => l.lote === lote);
+            lot.favorito = !lot.favorito;
+            renderLots(document.querySelector('.navbar-buttons .active').innerText.toLowerCase().includes('favoritos') ? 'favorites' : 'all');
+        }
+
+        function filterLots(filter) {
+            const allButton = document.querySelector('.navbar-buttons button:nth-child(1)');
+            const favoritesButton = document.querySelector('.navbar-buttons button:nth-child(2)');
+            if (filter === 'all') {
+                allButton.classList.add('active');
+                favoritesButton.classList.remove('active');
+            } else {
+                allButton.classList.remove('active');
+                favoritesButton.classList.add('active');
+            }
+            renderLots(filter);
+        }
+
+        function calcularLote(lote) {
+            const lot = lots.find(l => l.lote === lote);
+            sessionStorage.setItem('selectedLote', JSON.stringify(lot));
+            window.location.href = 'calculadora.html';
+        }
+
+        renderLots();
+    </script>
+</body>
+</html>

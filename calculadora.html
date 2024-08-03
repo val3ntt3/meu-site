@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Leilão de Veículos</title>
+    <div class="navbar">
+        <div class="navbar-title">Calculadora de Leilão</div>
+        <div class="navbar-buttons">
+            <a href="index.html" class="back-button">Voltar para a Página Inicial</a>
+        </div>
+    </div>    
+    <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .navbar {
+            background-color: #102246;
+            padding: 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            width: 100%;
+            position: absolute;
+            top: 0;
+        }
+
+        .navbar-title {
+            margin-left: 20px;
+        }
+
+        .info {
+            padding-right: 20px;
+            font-size: 17px;
+            color: #333;
+            align-items: center;
+        }
+        .info img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .info h3, .info p {
+            margin: 10px 0;
+        }
+        .calculadora {
+            flex: 1;
+            padding-left: 20px;
+            border-left: 1px solid #ccc;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        h4 {
+            inline-size: 300px;
+            overflow-wrap: break-word;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: #f9f9f9;
+            color: #333;
+            cursor: pointer;
+        }
+        button:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button:hover {
+            background-color: #e9e9e9;
+        }
+        .valor-lote {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #333;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: black;
+        }
+        .info-adicional {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #666;
+        }
+        .divisoria {
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        .back-button {
+            display: block;
+            margin: 0 5px auto;
+            padding: 10px 20px;
+            border: none;
+            background-color: #102246;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;            
+            box-sizing: border-box;
+            font-size: 16px;
+            text-align: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #132a57;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="info">
+            <img id="fotoCarro" src="" alt="Imagem do Veículo">
+            <div class="info-adicional">
+                <h4 style="font-size: 22px;color: #333;" id="nomeCarro"></h4>
+                <h4 style="font-size: 19px;" id="condicao"></h4>
+            </div>
+            <div>
+                <p id="tabelaFipe"></p>
+                <p id="precoMedio"></p>
+                <p id="condicao"></p>
+            </div>
+        </div>
+        
+        <div class="calculadora">
+            <h2><p id="nomeCarroCalc"></p></h2>
+            <div id="infoAdicional" class="info-adicional">
+                <p id="nomeCarroCalc"></p>
+                <p id="anoCalc"></p>
+                <p id="precoMedioCalc"></p>
+            </div>
+
+            <div class="divisoria"></div>
+
+            <label for="valorLote">Valor do Lote (R$):</label>
+            <div id="valorLote" class="valor-lote">0,00</div>
+            
+            <button onclick="adicionarValor(500)">Adicionar R$ 500</button>
+            <button onclick="adicionarValor(1000)">Adicionar R$ 1000</button>
+
+            <div class="result" id="resultado">Valor Final: R$ 0,00</div>
+
+        </div>
+    </div>
+    <script>
+        const selectedLote = JSON.parse(sessionStorage.getItem('selectedLote'));
+
+        document.getElementById('fotoCarro').src = selectedLote.img;
+        document.getElementById('nomeCarro').innerText = selectedLote.nome;
+        document.getElementById('condicao').innerText = '| ' + selectedLote.condicao;
+        document.getElementById('tabelaFipe').innerText = 'Valor Tabela Fipe: R$ ' + selectedLote.fipe;
+        document.getElementById('precoMedio').innerText = 'Preço Médio: R$ ' + selectedLote.precoMedio;
+        document.getElementById('nomeCarroCalc').innerText = selectedLote.nome;
+        document.getElementById('precoMedioCalc').innerText = 'Preço Inicial: R$ ' + selectedLote.preco;
+        
+        // Atualizar valor inicial
+        const valorInicial = parseFloat(selectedLote.preco.replace('R$', '').replace('.', '').replace(',', '.'));
+        document.getElementById('valorLote').innerText = valorInicial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        let valorFinal = valorInicial;
+
+        function adicionarValor(valor) {
+            valorFinal += valor;
+            document.getElementById('valorLote').innerText = valorFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            atualizarResultado();
+        }
+
+        function atualizarResultado() {
+            const taxaComissao = 0.05 * valorFinal;
+            const despesasAdministrativas = 1900;
+            const valorFinalComTaxas = valorFinal + taxaComissao + despesasAdministrativas;
+            document.getElementById('resultado').innerText = 'Valor Final:  ' + valorFinalComTaxas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+    </script>
+</body>
+</html>
